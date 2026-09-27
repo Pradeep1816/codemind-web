@@ -4,10 +4,13 @@ import {
   type KnowledgeBuild,
   type KnowledgeBuildList,
   type KnowledgeNodeList,
+  type KnowledgeNodeDetail,
+  type KnowledgeNodeKind,
   type KnowledgeSnapshot,
   knowledgeBuildListSchema,
   knowledgeBuildSchema,
   knowledgeNodeListSchema,
+  knowledgeNodeDetailSchema,
   knowledgeSnapshotSchema,
 } from "@/features/knowledge/schemas/knowledge.schema"
 import { ApiError } from "@/lib/api/api-error"
@@ -29,6 +32,18 @@ export async function startKnowledgeBuild(
   const payload = await authenticatedApiRequest<unknown>(
     `/repositories/${repositoryId}/knowledge/builds`,
     { json: { sourceIndexJobId }, method: "POST" },
+  )
+
+  return parseResponse(knowledgeBuildSchema, payload)
+}
+
+export async function retryKnowledgeBuild(
+  repositoryId: number,
+  buildId: number,
+): Promise<KnowledgeBuild> {
+  const payload = await authenticatedApiRequest<unknown>(
+    `/repositories/${repositoryId}/knowledge/builds/${buildId}/retry`,
+    { method: "POST" },
   )
 
   return parseResponse(knowledgeBuildSchema, payload)
@@ -56,12 +71,35 @@ export async function getCurrentKnowledgeSnapshot(
 export async function listKnowledgeNodes(
   repositoryId: number,
   snapshotId: number,
+  filters: { kind: KnowledgeNodeKind | ""; search: string },
 ): Promise<KnowledgeNodeList> {
+  const query = new URLSearchParams({ limit: "100", page: "1" })
+
+  if (filters.kind) {
+    query.set("kind", filters.kind)
+  }
+
+  if (filters.search.trim()) {
+    query.set("search", filters.search.trim())
+  }
+
   const payload = await authenticatedApiRequest<unknown>(
-    `/repositories/${repositoryId}/knowledge/snapshots/${snapshotId}/nodes?page=1&limit=20`,
+    `/repositories/${repositoryId}/knowledge/snapshots/${snapshotId}/nodes?${query.toString()}`,
   )
 
   return parseResponse(knowledgeNodeListSchema, payload)
+}
+
+export async function getKnowledgeNode(
+  repositoryId: number,
+  snapshotId: number,
+  nodeId: number,
+): Promise<KnowledgeNodeDetail> {
+  const payload = await authenticatedApiRequest<unknown>(
+    `/repositories/${repositoryId}/knowledge/snapshots/${snapshotId}/nodes/${nodeId}`,
+  )
+
+  return parseResponse(knowledgeNodeDetailSchema, payload)
 }
 
 function parseResponse<T>(schema: ZodType<T>, payload: unknown): T {

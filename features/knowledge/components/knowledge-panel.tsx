@@ -10,10 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { FormError } from "@/features/auth"
+import { KnowledgeExplorer } from "@/features/knowledge/components/knowledge-explorer"
 import {
   useCurrentKnowledgeSnapshot,
   useKnowledgeBuilds,
-  useKnowledgeNodes,
+  useRetryKnowledgeBuild,
   useStartKnowledgeBuild,
 } from "@/features/knowledge/hooks/use-knowledge"
 import type { KnowledgeBuild } from "@/features/knowledge/schemas/knowledge.schema"
@@ -33,6 +34,7 @@ export function KnowledgePanel({
 }: KnowledgePanelProps) {
   const builds = useKnowledgeBuilds(repositoryId, true)
   const startBuild = useStartKnowledgeBuild(repositoryId)
+  const retryBuild = useRetryKnowledgeBuild(repositoryId)
   const successfulJobs = useMemo(
     () => indexJobs.filter((job) => job.status === "succeeded"),
     [indexJobs],
@@ -52,15 +54,13 @@ export function KnowledgePanel({
     snapshotBranchId,
     true,
   )
-  const nodes = useKnowledgeNodes(
-    repositoryId,
-    snapshot.data?.id ?? null,
-    snapshot.data !== null,
-  )
-  const buildAlreadyActiveOrPublished =
+  const buildIsActive =
     existingBuild?.status === "queued" ||
-    existingBuild?.status === "running" ||
-    existingBuild?.status === "succeeded"
+    existingBuild?.status === "running"
+  const buildCanRetry =
+    existingBuild?.status === "failed" ||
+    existingBuild?.status === "cancelled"
+  const buildMutationIsPending = startBuild.isPending || retryBuild.isPending
 
   return (
     <Card>
@@ -98,22 +98,28 @@ export function KnowledgePanel({
             disabled={
               !canManage ||
               !selectedJobId ||
-              buildAlreadyActiveOrPublished ||
-              startBuild.isPending
+              buildIsActive ||
+              buildMutationIsPending
             }
             onClick={() => {
-              if (selectedJobId) {
+              if (buildCanRetry && existingBuild) {
+                retryBuild.mutate(existingBuild.id)
+              } else if (selectedJobId) {
                 startBuild.mutate(selectedJobId)
               }
             }}
             size="lg"
             type="button"
           >
-            {startBuild.isPending
+            {buildMutationIsPending
               ? "Queueing knowledge build…"
-              : buildAlreadyActiveOrPublished
-                ? "Knowledge build exists"
-                : "Build knowledge"}
+              : buildIsActive
+                ? "Knowledge build in progress"
+                : buildCanRetry
+                  ? "Retry knowledge build"
+                  : existingBuild?.status === "succeeded"
+                    ? "Rebuild knowledge"
+                    : "Build knowledge"}
           </Button>
         </div>
 
@@ -121,6 +127,8 @@ export function KnowledgePanel({
           message={
             startBuild.error
               ? errorMessage(startBuild.error, "Unable to start knowledge build.")
+              : retryBuild.error
+                ? errorMessage(retryBuild.error, "Unable to retry knowledge build.")
               : builds.error
                 ? errorMessage(builds.error, "Unable to load knowledge builds.")
                 : snapshot.error
@@ -147,10 +155,10 @@ export function KnowledgePanel({
         </div>
 
         {snapshot.data ? (
-          <KnowledgeNodePreview
-            isPending={nodes.isPending}
-            nodes={nodes.data?.data ?? []}
-            total={nodes.data?.pagination.total ?? 0}
+          <KnowledgeExplorer
+            key={snapshot.data.id}
+            repositoryId={repositoryId}
+            snapshotId={snapshot.data.id}
           />
         ) : null}
       </CardContent>
@@ -261,63 +269,6 @@ function SnapshotSummary({
             <p>Commit {snapshot.targetCommitSha.slice(0, 12)}</p>
             <p>Analyzer {snapshot.analyzerBundleVersion}</p>
           </div>
-        </div>
-      )}
-    </section>
-  )
-}
-
-function KnowledgeNodePreview({
-  isPending,
-  nodes,
-  total,
-}: {
-  isPending: boolean
-  nodes: Array<{
-    confidence: number
-    id: number
-    kind: string
-    name: string
-    summary: string | null
-  }>
-  total: number
-}) {
-  return (
-    <section className="space-y-3 border-t pt-6">
-      <div>
-        <h3 className="font-medium">Extracted knowledge</h3>
-        <p className="text-sm text-muted-foreground">
-          Showing the first {Math.min(nodes.length, 20)} of {total} nodes.
-        </p>
-      </div>
-      {isPending ? (
-        <div className="h-32 animate-pulse rounded-lg bg-muted" />
-      ) : nodes.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-          This snapshot contains no knowledge nodes.
-        </p>
-      ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {nodes.map((node) => (
-            <div className="rounded-lg border p-4" key={node.id}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{node.name}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {titleCase(node.kind)}
-                  </p>
-                </div>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {Math.round(node.confidence * 100)}%
-                </span>
-              </div>
-              {node.summary ? (
-                <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
-                  {node.summary}
-                </p>
-              ) : null}
-            </div>
-          ))}
         </div>
       )}
     </section>
