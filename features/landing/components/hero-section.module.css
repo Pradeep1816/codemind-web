@@ -1,0 +1,101 @@
+.backdrop {
+  pointer-events: none;
+  position: absolute;
+  inset: -7rem -5rem -3rem;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(99 102 241 / 8%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(99 102 241 / 8%) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(to bottom, transparent, black 20%, black 70%, transparent);
+  opacity: 0.72;
+  animation: grid-drift 22s linear infinite;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  opacity: 0.46;
+  will-change: transform;
+}
+
+.primaryOrb {
+  top: 3rem;
+  right: 4%;
+  width: 25rem;
+  height: 25rem;
+  background: rgb(99 102 241 / 68%);
+  animation: float-primary 16s ease-in-out infinite alternate;
+}
+
+.secondaryOrb {
+  bottom: 1rem;
+  left: 2%;
+  width: 21rem;
+  height: 21rem;
+  background: rgb(16 185 129 / 52%);
+  animation: float-secondary 19s ease-in-out infinite alternate;
+}
+
+.accentOrb {
+  top: 38%;
+  left: 42%;
+  width: 15rem;
+  height: 15rem;
+  background: rgb(56 189 248 / 42%);
+  animation: float-accent 13s ease-in-out infinite alternate;
+}
+
+@keyframes grid-drift {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 54px 54px;
+  }
+}
+
+@keyframes float-primary {
+  from {
+    transform: translate3d(0, -1.5rem, 0) scale(0.96);
+  }
+
+  to {
+    transform: translate3d(-5rem, 3rem, 0) scale(1.08);
+  }
+}
+
+@keyframes float-secondary {
+  from {
+    transform: translate3d(-2rem, 2rem, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(6rem, -3rem, 0) scale(1.12);
+  }
+}
+
+@keyframes float-accent {
+  from {
+    transform: translate3d(-2rem, -1rem, 0) scale(0.9);
+  }
+
+  to {
+    transform: translate3d(4rem, 4rem, 0) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid,
+  .orb {
+    animation: none;
+  }
+}

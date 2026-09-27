@@ -57,7 +57,7 @@ async function requestJson<T>(
     })
   } catch {
     throw new ApiError(
-      "Unable to reach CodeMind. Check your connection and try again.",
+      "Unable to reach Codexa. Check your connection and try again.",
       0,
       null,
       null,
@@ -74,7 +74,7 @@ async function requestJson<T>(
 
   if (!result.success) {
     throw new ApiError(
-      "CodeMind returned an unexpected response.",
+      "Codexa returned an unexpected response.",
       response.status,
       "INVALID_RESPONSE",
       null,

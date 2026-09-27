@@ -1,6 +1,9 @@
 "use client"
 
-import { LogoutButton, useAuthStore } from "@/features/auth"
+import Link from "next/link"
+import { CodexaLogo } from "@/components/brand/codexa-logo"
+import { LogoutButton } from "@/features/auth/components/logout-button"
+import { useAuthStore } from "@/features/auth/stores/auth.store"
 import { CreateRepositoryForm } from "@/features/repositories/components/create-repository-form"
 import { RepositoryList } from "@/features/repositories/components/repository-list"
 
@@ -14,8 +17,14 @@ export function RepositoriesPage() {
   return (
     <main className="mx-auto min-h-svh w-full max-w-7xl px-6 py-8">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b pb-5">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">CodeMind</p>
+        <div className="space-y-2">
+          <Link
+            aria-label="Codexa home"
+            className="inline-flex rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4"
+            href="/"
+          >
+            <CodexaLogo size="sm" />
+          </Link>
           <h1 className="text-xl font-semibold">
             {user?.organization.name ?? "Workspace"}
           </h1>

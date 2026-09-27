@@ -61,7 +61,7 @@ export function LoginForm() {
   return (
     <Card className="shadow-sm">
       <CardHeader>
-        <CardTitle className="text-xl">Sign in to CodeMind</CardTitle>
+        <CardTitle className="text-xl">Sign in to Codexa</CardTitle>
         <CardDescription>
           Continue to your organization&apos;s repository intelligence workspace.
         </CardDescription>
@@ -119,7 +119,7 @@ export function LoginForm() {
           {isSubmitting ? "Signing in…" : "Sign in"}
         </Button>
         <p className="text-sm text-muted-foreground">
-          New to CodeMind?{" "}
+          New to Codexa?{" "}
           <Link
             className="font-medium text-foreground hover:underline"
             href="/register"

@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { FormError } from "@/features/auth"
+import { FormError } from "@/features/auth/components/form-error"
 import { KnowledgeExplorer } from "@/features/knowledge/components/knowledge-explorer"
 import {
   useCurrentKnowledgeSnapshot,
@@ -18,7 +18,7 @@ import {
   useStartKnowledgeBuild,
 } from "@/features/knowledge/hooks/use-knowledge"
 import type { KnowledgeBuild } from "@/features/knowledge/schemas/knowledge.schema"
-import type { IndexJob } from "@/features/repositories"
+import type { IndexJob } from "@/features/repositories/schemas/repository.schema"
 import { ApiError } from "@/lib/api/api-error"
 
 interface KnowledgePanelProps {
@@ -129,11 +129,11 @@ export function KnowledgePanel({
               ? errorMessage(startBuild.error, "Unable to start knowledge build.")
               : retryBuild.error
                 ? errorMessage(retryBuild.error, "Unable to retry knowledge build.")
-              : builds.error
-                ? errorMessage(builds.error, "Unable to load knowledge builds.")
-                : snapshot.error
-                  ? errorMessage(snapshot.error, "Unable to load the knowledge snapshot.")
-                  : null
+                : builds.error
+                  ? errorMessage(builds.error, "Unable to load knowledge builds.")
+                  : snapshot.error
+                    ? errorMessage(snapshot.error, "Unable to load the knowledge snapshot.")
+                    : null
           }
         />
 

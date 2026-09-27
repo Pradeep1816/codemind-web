@@ -10,7 +10,7 @@ interface RootErrorProps {
 
 export default function RootError({ error, reset }: RootErrorProps) {
   useEffect(() => {
-    console.error("CodeMind route failed", error)
+    console.error("Codexa route failed", error)
   }, [error])
 
   return (
@@ -24,7 +24,7 @@ export default function RootError({ error, reset }: RootErrorProps) {
         </h1>
         <p className="text-sm text-muted-foreground">
           Try the request again. If it continues to fail, check that the
-          CodeMind API is available.
+          Codexa API is available.
         </p>
         <Button onClick={reset}>Try again</Button>
       </div>

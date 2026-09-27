@@ -2,17 +2,26 @@ import "server-only"
 
 import { cookies } from "next/headers"
 
-const DEVELOPMENT_COOKIE_NAME = "codemind_refresh"
-const PRODUCTION_COOKIE_NAME = "__Host-codemind_refresh"
+const DEVELOPMENT_COOKIE_NAME = "codexa_refresh"
+const PRODUCTION_COOKIE_NAME = "__Host-codexa_refresh"
+const LEGACY_DEVELOPMENT_COOKIE_NAME = "codemind_refresh"
+const LEGACY_PRODUCTION_COOKIE_NAME = "__Host-codemind_refresh"
 
-function cookieName(): string {
+function cookieNames(): readonly [current: string, legacy: string] {
   return process.env.NODE_ENV === "production"
-    ? PRODUCTION_COOKIE_NAME
-    : DEVELOPMENT_COOKIE_NAME
+    ? [PRODUCTION_COOKIE_NAME, LEGACY_PRODUCTION_COOKIE_NAME]
+    : [DEVELOPMENT_COOKIE_NAME, LEGACY_DEVELOPMENT_COOKIE_NAME]
 }
 
 export async function readRefreshToken(): Promise<string | null> {
-  return (await cookies()).get(cookieName())?.value ?? null
+  const cookieStore = await cookies()
+  const [currentName, legacyName] = cookieNames()
+
+  return (
+    cookieStore.get(currentName)?.value ??
+    cookieStore.get(legacyName)?.value ??
+    null
+  )
 }
 
 export async function writeRefreshToken(
@@ -20,29 +29,30 @@ export async function writeRefreshToken(
   expiresIn: string,
 ): Promise<void> {
   const cookieStore = await cookies()
+  const [currentName, legacyName] = cookieNames()
   const maxAge = parseDurationSeconds(expiresIn)
 
-  cookieStore.set(cookieName(), token, {
-    httpOnly: true,
-    maxAge,
-    path: "/",
-    priority: "high",
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-  })
+  cookieStore.set(currentName, token, cookieOptions(maxAge))
+  cookieStore.set(legacyName, "", cookieOptions(0))
 }
 
 export async function clearRefreshToken(): Promise<void> {
   const cookieStore = await cookies()
+  const [currentName, legacyName] = cookieNames()
 
-  cookieStore.set(cookieName(), "", {
+  cookieStore.set(currentName, "", cookieOptions(0))
+  cookieStore.set(legacyName, "", cookieOptions(0))
+}
+
+function cookieOptions(maxAge: number) {
+  return {
     httpOnly: true,
-    maxAge: 0,
+    maxAge,
     path: "/",
-    priority: "high",
-    sameSite: "lax",
+    priority: "high" as const,
+    sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
-  })
+  }
 }
 
 function parseDurationSeconds(value: string): number {

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { FormError } from "@/features/auth"
+import { FormError } from "@/features/auth/components/form-error"
 import { useCreateRepository } from "@/features/repositories/hooks/use-repositories"
 import {
   type CreateRepositoryInput,
