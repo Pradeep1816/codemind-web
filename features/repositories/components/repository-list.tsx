@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { GitBranch, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -75,7 +76,13 @@ export function RepositoryList({ enabled }: RepositoryListProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {repositories.data.data.map((repository) => (
-        <RepositoryCard key={repository.id} repository={repository} />
+        <Link
+          className="block h-full"
+          href={`/repositories/${repository.id}`}
+          key={repository.id}
+        >
+          <RepositoryCard repository={repository} />
+        </Link>
       ))}
     </div>
   )
