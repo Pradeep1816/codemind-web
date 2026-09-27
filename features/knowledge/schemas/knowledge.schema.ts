@@ -108,6 +108,64 @@ export const knowledgeNodeSchema = z.object({
   createdAt: z.string().datetime({ offset: true }),
 })
 
+const knowledgeEvidenceSchema = z.object({
+  id: z.number().int().positive(),
+  role: z.enum([
+    "declaration",
+    "call_site",
+    "decorator",
+    "injection",
+    "condition",
+    "assignment",
+    "configuration",
+    "import",
+    "export",
+    "inheritance",
+    "event_publication",
+    "event_handler",
+  ]),
+  file: z.object({
+    id: z.number().int().positive(),
+    path: z.string(),
+    hash: z.object({
+      id: z.number().int().positive(),
+      algorithm: z.literal("sha256"),
+      value: z.string(),
+    }),
+  }),
+  symbol: z
+    .object({
+      id: z.number().int().positive(),
+      name: z.string(),
+      qualifiedName: z.string(),
+      kind: z.enum([
+        "class",
+        "interface",
+        "function",
+        "method",
+        "enum",
+        "type_alias",
+      ]),
+    })
+    .nullable(),
+  range: z
+    .object({
+      startLine: z.number().int().nonnegative(),
+      startColumn: z.number().int().nonnegative(),
+      startOffset: z.number().int().nonnegative(),
+      endLine: z.number().int().nonnegative(),
+      endColumn: z.number().int().nonnegative(),
+      endOffset: z.number().int().nonnegative(),
+    })
+    .nullable(),
+})
+
+export const knowledgeNodeDetailSchema = knowledgeNodeSchema.extend({
+  evidence: z.array(knowledgeEvidenceSchema),
+  evidenceTotal: z.number().int().nonnegative(),
+  evidenceTruncated: z.boolean(),
+})
+
 export const knowledgeNodeListSchema = z.object({
   data: z.array(knowledgeNodeSchema),
   pagination: paginationSchema,
@@ -117,4 +175,6 @@ export type KnowledgeBuild = z.infer<typeof knowledgeBuildSchema>
 export type KnowledgeBuildList = z.infer<typeof knowledgeBuildListSchema>
 export type KnowledgeSnapshot = z.infer<typeof knowledgeSnapshotSchema>
 export type KnowledgeNode = z.infer<typeof knowledgeNodeSchema>
+export type KnowledgeNodeDetail = z.infer<typeof knowledgeNodeDetailSchema>
 export type KnowledgeNodeList = z.infer<typeof knowledgeNodeListSchema>
+export type KnowledgeNodeKind = KnowledgeNode["kind"]

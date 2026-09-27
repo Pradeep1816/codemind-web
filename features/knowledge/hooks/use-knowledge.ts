@@ -4,10 +4,13 @@ import { useEffect } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   getCurrentKnowledgeSnapshot,
+  getKnowledgeNode,
   listKnowledgeBuilds,
   listKnowledgeNodes,
+  retryKnowledgeBuild,
   startKnowledgeBuild,
 } from "@/features/knowledge/api/knowledge-api"
+import type { KnowledgeNodeKind } from "@/features/knowledge/schemas/knowledge.schema"
 
 export const knowledgeKeys = {
   all: (repositoryId: number) => ["knowledge", repositoryId] as const,
@@ -15,8 +18,26 @@ export const knowledgeKeys = {
     [...knowledgeKeys.all(repositoryId), "builds"] as const,
   currentSnapshot: (repositoryId: number, branchId: number) =>
     [...knowledgeKeys.all(repositoryId), "current-snapshot", branchId] as const,
-  nodes: (repositoryId: number, snapshotId: number) =>
-    [...knowledgeKeys.all(repositoryId), "snapshot", snapshotId, "nodes"] as const,
+  nodes: (
+    repositoryId: number,
+    snapshotId: number,
+    filters: { kind: KnowledgeNodeKind | ""; search: string },
+  ) =>
+    [
+      ...knowledgeKeys.all(repositoryId),
+      "snapshot",
+      snapshotId,
+      "nodes",
+      filters,
+    ] as const,
+  node: (repositoryId: number, snapshotId: number, nodeId: number) =>
+    [
+      ...knowledgeKeys.all(repositoryId),
+      "snapshot",
+      snapshotId,
+      "node",
+      nodeId,
+    ] as const,
 }
 
 export function useKnowledgeBuilds(repositoryId: number, enabled: boolean) {
@@ -64,6 +85,19 @@ export function useStartKnowledgeBuild(repositoryId: number) {
   })
 }
 
+export function useRetryKnowledgeBuild(repositoryId: number) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (buildId: number) => retryKnowledgeBuild(repositoryId, buildId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: knowledgeKeys.builds(repositoryId),
+      })
+    },
+  })
+}
+
 export function useCurrentKnowledgeSnapshot(
   repositoryId: number,
   branchId: number | null,
@@ -79,11 +113,24 @@ export function useCurrentKnowledgeSnapshot(
 export function useKnowledgeNodes(
   repositoryId: number,
   snapshotId: number | null,
+  filters: { kind: KnowledgeNodeKind | ""; search: string },
   enabled: boolean,
 ) {
   return useQuery({
     enabled: enabled && snapshotId !== null,
-    queryFn: () => listKnowledgeNodes(repositoryId, snapshotId!),
-    queryKey: knowledgeKeys.nodes(repositoryId, snapshotId ?? 0),
+    queryFn: () => listKnowledgeNodes(repositoryId, snapshotId!, filters),
+    queryKey: knowledgeKeys.nodes(repositoryId, snapshotId ?? 0, filters),
+  })
+}
+
+export function useKnowledgeNode(
+  repositoryId: number,
+  snapshotId: number,
+  nodeId: number | null,
+) {
+  return useQuery({
+    enabled: nodeId !== null,
+    queryFn: () => getKnowledgeNode(repositoryId, snapshotId, nodeId!),
+    queryKey: knowledgeKeys.node(repositoryId, snapshotId, nodeId ?? 0),
   })
 }
