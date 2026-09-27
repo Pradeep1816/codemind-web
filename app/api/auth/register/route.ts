@@ -1,6 +1,6 @@
 import {
   registerResponseSchema,
-  registerSchema,
+  registerRequestSchema,
 } from "@/features/auth/schemas/auth.schema"
 import {
   backendFailureResponse,
@@ -8,7 +8,7 @@ import {
 } from "@/features/auth/server/backend-auth"
 
 export async function POST(request: Request) {
-  const parsed = registerSchema.safeParse(await readJson(request))
+  const parsed = registerRequestSchema.safeParse(await readJson(request))
 
   if (!parsed.success) {
     return Response.json(

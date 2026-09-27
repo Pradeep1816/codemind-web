@@ -5,21 +5,24 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required").max(128),
 })
 
-export const registerSchema = z
-  .object({
-    organizationName: z.string().trim().min(2).max(160),
-    organizationSlug: z
-      .string()
-      .trim()
-      .min(1)
-      .max(100)
-      .regex(
-        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-        "Use lowercase letters, numbers, and single hyphens",
-      ),
-    name: z.string().trim().min(2).max(150),
-    email: z.string().trim().toLowerCase().email().max(320),
-    password: z.string().min(12).max(128),
+export const registerRequestSchema = z.object({
+  organizationName: z.string().trim().min(2).max(160),
+  organizationSlug: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Use lowercase letters, numbers, and single hyphens",
+    ),
+  name: z.string().trim().min(2).max(150),
+  email: z.string().trim().toLowerCase().email().max(320),
+  password: z.string().min(12).max(128),
+})
+
+export const registerSchema = registerRequestSchema
+  .extend({
     confirmPassword: z.string(),
   })
   .refine((input) => input.password === input.confirmPassword, {
@@ -77,7 +80,7 @@ export const logoutRequestSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterFormInput = z.infer<typeof registerSchema>
-export type RegisterInput = Omit<RegisterFormInput, "confirmPassword">
+export type RegisterInput = z.infer<typeof registerRequestSchema>
 export type AuthenticatedUser = z.infer<typeof authenticatedUserSchema>
 export type TokenPair = z.infer<typeof tokenPairSchema>
 export type AuthSession = z.infer<typeof sessionResponseSchema>
