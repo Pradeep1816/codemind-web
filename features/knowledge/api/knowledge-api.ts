@@ -1,5 +1,5 @@
 import type { ZodType } from "zod"
-import { authenticatedApiRequest } from "@/features/auth"
+import { authenticatedApiRequest } from "@/features/auth/api/authenticated-request"
 import {
   type KnowledgeBuild,
   type KnowledgeBuildList,
@@ -107,7 +107,7 @@ function parseResponse<T>(schema: ZodType<T>, payload: unknown): T {
 
   if (!result.success) {
     throw new ApiError(
-      "CodeMind returned an unexpected knowledge response.",
+      "Codexa returned an unexpected knowledge response.",
       502,
       "INVALID_RESPONSE",
       null,

@@ -10,7 +10,7 @@ export default function NotFound() {
           Page not found
         </h1>
         <p className="text-sm text-muted-foreground">
-          The CodeMind page you requested does not exist or has moved.
+          The Codexa page you requested does not exist or has moved.
         </p>
         <Button render={<Link href="/" />}>Return home</Button>
       </div>

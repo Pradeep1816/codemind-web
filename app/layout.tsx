@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "CodeMind",
-    template: "%s | CodeMind",
+    default: "Codexa",
+    template: "%s | Codexa",
   },
   description: "Repository intelligence for engineering teams.",
 };

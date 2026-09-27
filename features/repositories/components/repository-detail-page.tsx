@@ -11,8 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { FormError, LogoutButton, useAuthStore } from "@/features/auth"
-import { KnowledgePanel } from "@/features/knowledge"
+import { FormError } from "@/features/auth/components/form-error"
+import { LogoutButton } from "@/features/auth/components/logout-button"
+import { useAuthStore } from "@/features/auth/stores/auth.store"
+import { KnowledgePanel } from "@/features/knowledge/components/knowledge-panel"
 import {
   useIndexJobs,
   useRepository,

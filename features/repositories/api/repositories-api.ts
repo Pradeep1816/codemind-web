@@ -1,5 +1,5 @@
 import type { ZodType } from "zod"
-import { authenticatedApiRequest } from "@/features/auth"
+import { authenticatedApiRequest } from "@/features/auth/api/authenticated-request"
 import {
   type CreateRepositoryInput,
   type IndexJob,
@@ -109,7 +109,7 @@ function parseResponse<T>(schema: ZodType<T>, payload: unknown): T {
 
   if (!result.success) {
     throw new ApiError(
-      "CodeMind returned an unexpected repository response.",
+      "Codexa returned an unexpected repository response.",
       502,
       "INVALID_RESPONSE",
       null,

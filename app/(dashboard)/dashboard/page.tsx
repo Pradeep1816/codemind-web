@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { RepositoriesPage } from "@/features/repositories"
+import { RepositoriesPage } from "@/features/repositories/components/repositories-page"
 
 export const metadata: Metadata = { title: "Dashboard" }
 

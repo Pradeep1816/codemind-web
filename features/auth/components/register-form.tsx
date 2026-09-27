@@ -69,7 +69,7 @@ export function RegisterForm() {
   return (
     <Card className="shadow-sm">
       <CardHeader>
-        <CardTitle className="text-xl">Create your CodeMind workspace</CardTitle>
+        <CardTitle className="text-xl">Create your Codexa workspace</CardTitle>
         <CardDescription>
           Register an organization and its first owner account.
         </CardDescription>
