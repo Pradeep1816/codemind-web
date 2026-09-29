@@ -28,6 +28,7 @@ import type {
   IndexingMode,
   RepositoryBranch,
 } from "@/features/repositories/schemas/repository.schema"
+import { RepositorySearch } from "@/features/search/components/repository-search"
 import { ApiError } from "@/lib/api/api-error"
 
 interface RepositoryDetailPageProps {
@@ -50,6 +51,11 @@ export function RepositoryDetailPage({
   const canManageKnowledge =
     user?.permissions === undefined ||
     user.permissions.includes("knowledge.manage")
+  const canSearch =
+    user?.permissions === undefined || user.permissions.includes("search.use")
+  const canBuildSearch =
+    user?.permissions === undefined ||
+    user.permissions.includes("repository.index")
 
   if (repository.isPending) {
     return <PageLoading />
@@ -122,6 +128,13 @@ export function RepositoryDetailPage({
           isPending={jobs.isPending}
           jobs={jobs.data?.data ?? []}
           retry={() => void jobs.refetch()}
+        />
+        <RepositorySearch
+          branches={branches.data?.branches ?? []}
+          canBuildSearch={canBuildSearch}
+          canSearch={canSearch}
+          defaultBranch={branches.data?.defaultBranch ?? null}
+          repositoryId={repositoryId}
         />
         <KnowledgePanel
           canManage={canManageKnowledge}
